@@ -29,7 +29,8 @@ button,input,select{font:inherit}.app{max-width:720px;margin:auto;padding:15px 1
 
  <section id="lobby" class="screen">
   <div class="card"><div class="title">كود الغرفة</div><div id="code" class="code">------</div><div id="opp" class="muted" style="text-align:center">بانتظار الطرف الثاني…</div></div>
-  <button id="setupBtn" class="btn primary full" disabled onclick="show('setup')">إعداد سفني</button>
+  <button id="setupBtn" class="btn primary full" disabled onclick="openSetup()">إعداد سفني</button>
+  <div class="grid" style="margin-top:9px"><button class="btn ghost" onclick="shareRoom()">مشاركة الكود</button><button class="btn ghost" onclick="leaveRoom()">مغادرة الغرفة</button></div>
  </section>
 
  <section id="setup" class="screen">
@@ -61,9 +62,10 @@ button,input,select{font:inherit}.app{max-width:720px;margin:auto;padding:15px 1
    <div><h3 style="text-align:center">🚢 سفني</h3><div id="ownBoard" class="board"></div></div>
   </div>
   <div class="card"><div class="title" style="font-size:18px">حالة سفني</div><div id="shipStatus"></div></div>
+  <button class="btn ghost full" onclick="leaveRoom()">إنهاء ومغادرة الغرفة</button>
  </section>
 
- <section id="end" class="screen"><div class="card" style="text-align:center"><div style="font-size:62px">🏁</div><div id="endTitle" class="title"></div><div id="endText" class="muted"></div><button class="btn primary full" style="margin-top:14px" onclick="location.reload()">لعبة جديدة</button></div></section>
+ <section id="end" class="screen"><div class="card" style="text-align:center"><div style="font-size:62px">🏁</div><div id="endTitle" class="title"></div><div id="endText" class="muted"></div><button class="btn primary full" style="margin-top:14px" onclick="rematch()">إعادة مباراة بنفس الغرفة</button><button class="btn ghost full" style="margin-top:9px" onclick="leaveRoom()">إنهاء الغرفة</button></div></section>
 </div>
 <div id="overlay" class="overlay"><div id="modal" class="modal"></div></div><div id="toast" class="toast"></div>
 
@@ -75,39 +77,62 @@ import {getDatabase,ref,set,get,update,onValue,push,remove} from "https://www.gs
 const cfg={apiKey:"AIzaSyBd36jTJ1Z-SrhyXk_jXOcVBjPvVFGfpek",authDomain:"couple-battleship.firebaseapp.com",databaseURL:"https://couple-battleship-default-rtdb.firebaseio.com",projectId:"couple-battleship",storageBucket:"couple-battleship.firebasestorage.app",messagingSenderId:"1030235226722",appId:"1:1030235226722:web:111d78d035944a17a3873b"};
 const app=initializeApp(cfg),auth=getAuth(app),db=getDatabase(app);
 const N=6,L=[4,3,2,2],WIN=3;
-let uid=null,room=null,rd=null,myRole='husband',oppUid=null,ships=newShips(),busy=false,seenIn=new Set(),seenOut=new Set();
+let uid=null,room=null,rd=null,myRole='husband',oppUid=null,ships=newShips(),busy=false,seenIn=new Set(),seenOut=new Set(),roomUnsub=null,restoring=false;
 
 function newShips(){return L.map((n,i)=>({id:'s'+i,len:n,piece:'',dep:null,cells:[],hits:[],sunk:false,removed:false}))}
 function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById(id).classList.add('on')} window.show=show;
 function toast(t){let e=document.getElementById('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1600)}
 function roleAr(r){return r==='husband'?'الزوج':'الزوجة'} function otherRole(r){return r==='husband'?'wife':'husband'}
 window.pickRole=r=>{myRole=r;rh.className='btn '+(r==='husband'?'primary':'ghost');rw.className='btn '+(r==='wife'?'primary':'ghost')};
-onAuthStateChanged(auth,u=>{if(u){uid=u.uid;net.textContent='متصل ✓'}});signInAnonymously(auth).catch(()=>net.textContent='خطأ اتصال');
+onValue(ref(db,'.info/connected'),s=>{net.textContent=s.val()===true?'متصل ✓':'غير متصل';});
+onAuthStateChanged(auth,async u=>{if(u){uid=u.uid;await resumeActiveRoom()}});signInAnonymously(auth).catch(()=>net.textContent='خطأ اتصال');
 async function ensure(){if(uid)return uid;let x=await signInAnonymously(auth);uid=x.user.uid;return uid}
+function rememberActive(){if(room)localStorage.setItem('cb_active_room',JSON.stringify({room,myRole}))}
+function clearActive(){localStorage.removeItem('cb_active_room')}
+async function resumeActiveRoom(){if(restoring||room)return;let a=localStorage.getItem('cb_active_room');if(!a)return;restoring=true;try{let j=JSON.parse(a),r=j.room;if(!r)return;let s=await get(ref(db,'rooms/'+r));if(!s.exists()){clearActive();return}let x=s.val();if(x.hostUid!==uid&&x.guestUid!==uid){clearActive();return}room=r;rd=x;myRole=x.hostUid===uid?x.hostRole:otherRole(x.hostRole);enterLobby()}catch(e){console.warn('resume failed',e)}finally{restoring=false}}
 function code6(){let a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='';for(let i=0;i<6;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
 
-window.createRoom=async()=>{await ensure();for(let i=0;i<8;i++){const candidate=code6();try{await set(ref(db,'rooms/'+candidate),{hostUid:uid,hostRole:myRole,status:'waiting',readyHost:false,readyGuest:false,turnUid:null,shotsLeft:2,bonusUsed:false});room=candidate;enterLobby();return}catch(e){console.warn('room create retry',candidate,e?.code||e)}}toast('تعذر إنشاء الغرفة. أعد المحاولة بعد ثوانٍ')};
-window.joinRoom=async()=>{try{await ensure();room=join.value.trim().toUpperCase();if(room.length!==6)return toast('الكود 6 خانات');await update(ref(db,'rooms/'+room),{guestUid:uid,status:'setup'});let s=await get(ref(db,'rooms/'+room));rd=s.val();myRole=otherRole(rd.hostRole);enterLobby()}catch(e){console.error(e);toast('الغرفة غير موجودة أو ممتلئة')}};
+window.createRoom=async()=>{await ensure();for(let i=0;i<8;i++){const candidate=code6();try{await set(ref(db,'rooms/'+candidate),{hostUid:uid,hostRole:myRole,status:'waiting',readyHost:false,readyGuest:false,turnUid:null,shotsLeft:2,bonusUsed:false,round:1});room=candidate;rememberActive();enterLobby();return}catch(e){console.warn('room create retry',candidate,e?.code||e)}}toast('تعذر إنشاء الغرفة. أعد المحاولة بعد ثوانٍ')};
+window.joinRoom=async()=>{try{await ensure();room=join.value.trim().toUpperCase();if(room.length!==6)return toast('الكود 6 خانات');await update(ref(db,'rooms/'+room),{guestUid:uid,status:'setup'});let s=await get(ref(db,'rooms/'+room));rd=s.val();myRole=otherRole(rd.hostRole);rememberActive();enterLobby()}catch(e){console.error(e);toast('الغرفة غير موجودة أو ممتلئة')}};
 
-function enterLobby(){show('lobby');code.textContent=room;onValue(ref(db,'rooms/'+room),async s=>{if(!s.exists())return;rd=s.val();oppUid=rd.hostUid===uid?rd.guestUid:rd.hostUid;if(rd.guestUid){opp.textContent='الطرف الثاني متصل ✓';setupBtn.disabled=false}
- if(rd.readyHost&&rd.readyGuest&&rd.hostUid===uid&&rd.status!=='playing')await update(ref(db,'rooms/'+room),{status:'playing',turnUid:rd.hostUid,shotsLeft:2,bonusUsed:false});
- if(rd.status==='playing'){loadLocal();show('battle');renderBattle();processShots(rd.shots||{})}
- if(rd.status==='finished'){show('end');let win=rd.winnerUid===uid;endTitle.textContent=win?'فزت بالجولة 🔥':'انتهت الجولة';endText.textContent=win?'أغرقت ثلاث سفن للخصم.':'تم إغراق ثلاث من سفنك.'}
-})}
+function enterLobby(){
+ if(roomUnsub)roomUnsub();
+ show('lobby');code.textContent=room;rememberActive();
+ roomUnsub=onValue(ref(db,'rooms/'+room),async s=>{
+  if(!s.exists()){clearActive();room=null;rd=null;show('home');toast('تم إغلاق الغرفة');return}
+  rd=s.val();oppUid=rd.hostUid===uid?rd.guestUid:rd.hostUid;
+  if(rd.guestUid){opp.textContent='الطرف الثاني متصل ✓';setupBtn.disabled=false}else{opp.textContent='بانتظار الطرف الثاني…';setupBtn.disabled=true}
+  if(rd.readyHost&&rd.readyGuest&&rd.hostUid===uid&&rd.status!=='playing'&&rd.status!=='finished')await update(ref(db,'rooms/'+room),{status:'playing',turnUid:rd.hostUid,shotsLeft:2,bonusUsed:false});
+  const amHost=rd.hostUid===uid, myReady=amHost?rd.readyHost:rd.readyGuest;
+  if(rd.status==='waiting'){show('lobby')}
+  else if(rd.status==='setup'){if(myReady)show('wait');else openSetup(false)}
+  else if(rd.status==='rematch'){prepareRematch(rd.round||1);openSetup(false)}
+  else if(rd.status==='playing'){loadLocal();show('battle');renderBattle();processShots(rd.shots||{})}
+  else if(rd.status==='finished'){show('end');let win=rd.winnerUid===uid;endTitle.textContent=win?'فزت بالجولة 🔥':'انتهت الجولة';endText.textContent=win?'أغرقت ثلاث سفن للخصم.':'تم إغراق ثلاث من سفنك.'}
+ })
+}
+window.shareRoom=async()=>{if(!room)return;const text='كود لعبة Couple Battleship: '+room;try{if(navigator.share)await navigator.share({title:'Couple Battleship',text});else{await navigator.clipboard.writeText(room);toast('تم نسخ الكود')}}catch(e){if(e?.name!=='AbortError')toast('الكود: '+room)}}
+window.leaveRoom=async()=>{if(!room)return show('home');if(!confirm('إنهاء الغرفة والمباراة الحالية؟'))return;const oldRoom=room;try{await remove(ref(db,'rooms/'+oldRoom))}catch(e){console.warn(e)}localStorage.removeItem('cbs_'+oldRoom+'_'+uid);localStorage.removeItem('cbs_round_'+oldRoom+'_'+uid);clearActive();room=null;rd=null;if(roomUnsub){roomUnsub();roomUnsub=null}show('home');toast('تم إنهاء الغرفة')}
+window.openSetup=()=>{loadLocal();restoreSetupFields();show('setup');renderSetup()}
+
 
 function depUI(){deps.innerHTML='';for(let i=0;i<4;i++){let d=document.createElement('div');d.className='form';d.innerHTML=`<div class="len">سفينة ${i+1}</div><select id="d${i}" class="select"><option value="">لا تعتمد على قطعة</option></select>`;deps.appendChild(d)}refreshDeps()}
 function refreshDeps(){for(let i=0;i<4;i++){let s=document.getElementById('d'+i),old=s?.value||'';if(!s)continue;s.innerHTML='<option value="">لا تعتمد على قطعة</option>';for(let j=0;j<4;j++)if(j!==i){let n=document.getElementById('p'+j).value.trim()||'السفينة '+(j+1);s.innerHTML+=`<option value="s${j}">${n}</option>`}s.value=old}}
-setTimeout(()=>{for(let i=0;i<4;i++)document.getElementById('p'+i).addEventListener('input',refreshDeps)},0);depUI();
+setTimeout(()=>{for(let i=0;i<4;i++){document.getElementById('p'+i).addEventListener('input',()=>{refreshDeps();saveDraft()})}for(let i=0;i<4;i++)document.getElementById('d'+i).addEventListener('change',saveDraft)},0);depUI();
 
 function board(el,fn){el.innerHTML='';for(let r=0;r<N;r++)for(let c=0;c<N;c++){let b=document.createElement('button');b.className='cell';b.dataset.k=`${r},${c}`;if(fn)b.onclick=()=>fn(r,c);el.appendChild(b)}}
 function randomPlace(){ships.forEach(s=>s.cells=[]);let occ=new Set();for(let s of ships){for(let t=0;t<500;t++){let v=Math.random()<.5,r=Math.floor(Math.random()*N),c=Math.floor(Math.random()*N),a=[];for(let k=0;k<s.len;k++){let rr=r+(v?k:0),cc=c+(v?0:k);if(rr>=N||cc>=N){a=[];break}a.push(`${rr},${cc}`)}if(a.length&&!a.some(x=>occ.has(x))){s.cells=a;a.forEach(x=>occ.add(x));break}}}}
-window.randomize=()=>{randomPlace();renderSetup()};randomPlace();
+window.randomize=()=>{randomPlace();saveDraft();renderSetup()};randomPlace();
 function renderSetup(){board(setupBoard,null);let occ=new Set();ships.forEach(s=>s.cells.forEach(x=>occ.add(x)));setupBoard.querySelectorAll('.cell').forEach(b=>{if(occ.has(b.dataset.k))b.classList.add('ship')})}renderSetup();
 
 function cycle(){let m={};ships.forEach(s=>m[s.id]=s.dep);for(let s of ships){let seen=new Set(),x=s.id;while(m[x]){if(seen.has(m[x]))return true;seen.add(m[x]);x=m[x]}}return false}
-function saveLocal(){localStorage.setItem('cbs_'+room+'_'+uid,JSON.stringify({ships,myRole}))}
-function loadLocal(){let x=localStorage.getItem('cbs_'+room+'_'+uid);if(x)try{let j=JSON.parse(x);ships=j.ships||ships;myRole=j.myRole||myRole}catch{}}
+function saveLocal(){if(room&&uid)localStorage.setItem('cbs_'+room+'_'+uid,JSON.stringify({ships,myRole}))}
+function loadLocal(){if(!room||!uid)return;let x=localStorage.getItem('cbs_'+room+'_'+uid);if(x)try{let j=JSON.parse(x);ships=j.ships||ships;myRole=j.myRole||myRole}catch{}}
+function saveDraft(){if(!room||!uid)return;for(let i=0;i<4;i++){let p=document.getElementById('p'+i),d=document.getElementById('d'+i);if(p)ships[i].piece=p.value.trim();if(d)ships[i].dep=d.value||null}saveLocal()}
+function restoreSetupFields(){for(let i=0;i<4;i++)document.getElementById('p'+i).value=ships[i].piece||'';refreshDeps();for(let i=0;i<4;i++)document.getElementById('d'+i).value=ships[i].dep||''}
+function prepareRematch(round){if(!room||!uid)return;const k='cbs_round_'+room+'_'+uid;if(localStorage.getItem(k)==String(round))return;loadLocal();ships.forEach(s=>{s.hits=[];s.sunk=false;s.removed=false});randomPlace();saveLocal();localStorage.setItem(k,String(round))}
 window.ready=async()=>{for(let i=0;i<4;i++){ships[i].piece=document.getElementById('p'+i).value.trim();ships[i].dep=document.getElementById('d'+i).value||null;if(!ships[i].piece)return toast('اكتب اسم كل قطعة')}if(cycle())return toast('ترتيب الطبقات غير صحيح');saveLocal();let host=rd.hostUid===uid;await update(ref(db,'rooms/'+room),host?{readyHost:true,status:'setup'}:{readyGuest:true,status:'setup'});show('wait')};
+window.rematch=async()=>{if(!room||!rd)return;const next=(rd.round||1)+1;await update(ref(db,'rooms/'+room),{status:'rematch',round:next,readyHost:false,readyGuest:false,turnUid:null,shotsLeft:2,bonusUsed:false,shots:null,pause:null,winnerUid:null});prepareRematch(next);openSetup()};
 
 function arr(){return Object.entries(rd?.shots||{}).map(([id,v])=>({id,...v}))}
 function mine(){return arr().filter(x=>x.shooterUid===uid&&x.status==='resolved')}function incoming(){return arr().filter(x=>x.targetUid===uid&&x.status==='resolved')}
