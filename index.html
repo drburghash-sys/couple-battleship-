@@ -28,7 +28,7 @@ button,input,select{font:inherit}.app{max-width:720px;margin:auto;padding:15px 1
  </section>
 
  <section id="lobby" class="screen">
-  <div class="card"><div class="title">كود الغرفة</div><div id="code" class="code">------</div><div id="opp" class="s="muted" style="text-align:center">بانتظار الطرف الثاني…</div></div>
+  <div class="card"><div class="title">كود الغرفة</div><div id="code" class="code">------</div><div id="opp" class="muted" style="text-align:center">بانتظار الطرف الثاني…</div></div>
   <button id="setupBtn" class="btn primary full" disabled onclick="show('setup')">إعداد سفني</button>
  </section>
 
@@ -86,7 +86,7 @@ onAuthStateChanged(auth,u=>{if(u){uid=u.uid;net.textContent='متصل ✓'}});si
 async function ensure(){if(uid)return uid;let x=await signInAnonymously(auth);uid=x.user.uid;return uid}
 function code6(){let a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='';for(let i=0;i<6;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
 
-window.createRoom=async()=>{try{await ensure();let c;for(let i=0;i<8;i++){c=code6();if(!(await get(ref(db,'rooms/'+c))).exists())break}room=c;await set(ref(db,'rooms/'+room),{hostUid:uid,hostRole:myRole,status:'waiting',readyHost:false,readyGuest:false,turnUid:null,shotsLeft:2,bonusUsed:false});enterLobby()}catch(e){console.error(e);toast('تعذر إنشاء الغرفة — راجع قواعد Firebase')}};
+window.createRoom=async()=>{await ensure();for(let i=0;i<8;i++){const candidate=code6();try{await set(ref(db,'rooms/'+candidate),{hostUid:uid,hostRole:myRole,status:'waiting',readyHost:false,readyGuest:false,turnUid:null,shotsLeft:2,bonusUsed:false});room=candidate;enterLobby();return}catch(e){console.warn('room create retry',candidate,e?.code||e)}}toast('تعذر إنشاء الغرفة. أعد المحاولة بعد ثوانٍ')};
 window.joinRoom=async()=>{try{await ensure();room=join.value.trim().toUpperCase();if(room.length!==6)return toast('الكود 6 خانات');await update(ref(db,'rooms/'+room),{guestUid:uid,status:'setup'});let s=await get(ref(db,'rooms/'+room));rd=s.val();myRole=otherRole(rd.hostRole);enterLobby()}catch(e){console.error(e);toast('الغرفة غير موجودة أو ممتلئة')}};
 
 function enterLobby(){show('lobby');code.textContent=room;onValue(ref(db,'rooms/'+room),async s=>{if(!s.exists())return;rd=s.val();oppUid=rd.hostUid===uid?rd.guestUid:rd.hostUid;if(rd.guestUid){opp.textContent='الطرف الثاني متصل ✓';setupBtn.disabled=false}
