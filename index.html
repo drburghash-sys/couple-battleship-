@@ -15,11 +15,58 @@ button,input,select{font:inherit}.app{max-width:720px;margin:auto;padding:15px 1
 .overlay{position:fixed;inset:0;background:#070407e8;display:none;place-items:center;padding:20px;z-index:20}.overlay.on{display:grid}.modal{max-width:480px;width:100%;background:linear-gradient(#391725,#1b0d14);border:1px solid #73334e;border-radius:25px;padding:22px;text-align:center}.modal .big{font-size:58px}.modal h2{font-size:29px}.modal p{font-size:18px;line-height:1.8}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#fff;color:#241018;padding:10px 14px;border-radius:12px;font-weight:900;opacity:0;transition:.2s;z-index:30}.toast.on{opacity:1}
 @media(max-width:600px){.boards{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+
+/* V4 visual system */
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:
+radial-gradient(circle at 15% 12%,#ff4e8915 0 12%,transparent 30%),
+radial-gradient(circle at 85% 28%,#6ac7ff12 0 10%,transparent 30%);z-index:-1}
+.card{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px #0007,inset 0 1px 0 #ffffff0b}
+.screen.on{animation:screenIn .32s ease both}
+.btn{transition:transform .14s ease,filter .14s ease,box-shadow .14s ease}.btn:active{transform:scale(.97)}
+.primary{box-shadow:0 10px 25px #c51d5140}.primary:hover{filter:brightness(1.07)}
+.top{position:sticky;top:0;z-index:8;padding:7px 0;background:linear-gradient(#10080ef0,#10080e9a,transparent);backdrop-filter:blur(8px)}
+.brand{display:flex;align-items:center;gap:7px;text-shadow:0 0 22px #ff6b9b30}.brand:before{content:"⚓";display:grid;place-items:center;width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#ec477a,#7d173d);box-shadow:0 8px 24px #0007}
+.brand{font-size:20px}.brand:first-letter{font-size:0}
+.fxbar{display:flex;gap:6px}.fxbtn{width:36px;height:36px;border-radius:12px;border:1px solid var(--line);background:#1f1119;color:white;display:grid;place-items:center}
+.fxbtn.off{opacity:.45;filter:grayscale(1)}
+.code{background:linear-gradient(90deg,#fff,#ff9fbc,#fff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 30px #ff4f8530}
+.board{position:relative;overflow:hidden;box-shadow:inset 0 0 30px #061018,0 12px 28px #0007}
+.board:before{content:"";position:absolute;inset:-45%;background:linear-gradient(110deg,transparent 42%,#ffffff08 50%,transparent 58%);animation:waterSweep 6s linear infinite;pointer-events:none}
+.cell{transition:transform .12s ease,filter .2s ease,box-shadow .2s ease;overflow:hidden}
+.cell:not(.off):active{transform:scale(.88)}
+.cell.hit{animation:hitPulse .42s ease both;box-shadow:0 0 18px #ff556aaa}
+.cell.sunk{animation:sunkPulse .8s ease both;box-shadow:0 0 28px #ff334faa}
+.cell.miss{animation:splash .45s ease both}
+.cell.aim{outline:2px solid #ff91b3;filter:brightness(1.35)}
+.cell.ship{box-shadow:inset 0 0 0 1px #ffffff25}
+.turn{position:relative;overflow:hidden;transition:.3s}.turn.mine{animation:turnGlow 1.8s ease-in-out infinite}
+.turn.mine:after{content:"";position:absolute;inset:-70% -20%;background:linear-gradient(110deg,transparent 42%,#65e0a020 50%,transparent 58%);animation:turnSweep 2.6s linear infinite;pointer-events:none}
+.ship-picker{display:flex;gap:7px;overflow:auto;padding:5px 1px 9px;scrollbar-width:none}.ship-picker::-webkit-scrollbar{display:none}
+.shippick{white-space:nowrap;border:1px solid var(--line);background:#21111a;color:white;border-radius:999px;padding:9px 12px;font-weight:800}
+.shippick.sel{border-color:#ff79a1;box-shadow:0 0 0 2px #ff79a122;background:#391727}
+.shippick.placed{opacity:.62}
+.place-tools{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:10px 0}
+.setup-hint{font-size:12px;color:#ccb9c2;line-height:1.6;margin-top:8px}
+.fxbanner{position:fixed;top:18%;left:50%;transform:translate(-50%,-20px) scale(.8);z-index:90;font-size:42px;font-weight:1000;opacity:0;pointer-events:none;text-shadow:0 6px 25px #000;transition:.25s}
+.fxbanner.show{opacity:1;transform:translate(-50%,0) scale(1)}
+.fx-particle{position:fixed;z-index:89;width:10px;height:10px;border-radius:50%;pointer-events:none;animation:particle 850ms ease-out forwards}
+.waitpulse{animation:waitPulse 1.5s ease-in-out infinite}
+@keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes waterSweep{to{transform:translateX(35%)}}
+@keyframes hitPulse{0%{transform:scale(.65)}45%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes sunkPulse{0%{transform:scale(.65) rotate(-4deg)}35%{transform:scale(1.22) rotate(3deg)}70%{transform:scale(.96)}100%{transform:scale(1)}}
+@keyframes splash{0%{transform:scale(.75);filter:brightness(2)}100%{transform:scale(1);filter:none}}
+@keyframes turnGlow{50%{box-shadow:0 0 32px #54d99a2e,inset 0 0 24px #54d99a10}}
+@keyframes turnSweep{to{transform:translateX(35%)}}
+@keyframes particle{to{transform:translate(var(--dx),var(--dy)) rotate(260deg);opacity:0}}
+@keyframes waitPulse{50%{transform:scale(1.06);opacity:.7}}
+@media(max-width:600px){.top{align-items:flex-start}.fxbar{margin-top:2px}.place-tools{grid-template-columns:1fr 1fr}.place-tools .wide{grid-column:1/-1}}
+
 </style>
 </head>
 <body>
 <div class="app">
- <div class="top"><div class="brand">⚓ Couple Battleship <small style="font-size:11px;color:#ceb9c3">V3</small></div><div id="net" class="net">اتصال…</div></div>
+ <div class="top"><div class="brand">Couple Battleship <small style="font-size:11px;color:#ceb9c3">V4</small></div><div style="display:flex;align-items:center;gap:7px"><div class="fxbar"><button id="soundBtn" class="fxbtn" onclick="toggleSound()" title="الصوت">🔊</button><button id="hapticBtn" class="fxbtn" onclick="toggleHaptic()" title="الاهتزاز">📳</button></div><div id="net" class="net">اتصال…</div></div></div>
 
  <section id="home" class="screen on">
   <div class="card"><div class="title">لعبة السفن — على جوالين</div><div class="muted">كل لاعب يرى سفنه وضرباته من جواله. أماكن السفن وأسماء الملابس تبقى محليًا على جهاز صاحبها.</div></div>
@@ -47,13 +94,16 @@ button,input,select{font:inherit}.app{max-width:720px;margin:auto;padding:15px 1
   </div>
   <div class="card">
    <div class="title">2. توزيع السفن</div>
-   <div class="muted">لجعل اللعبة سريعة، التوزيع عشوائي. اضغط إعادة التوزيع حتى يعجبك الشكل.</div>
-   <div id="setupBoard" class="board" style="margin-top:12px"></div>
-   <div class="row" style="margin-top:10px"><button class="btn ghost" onclick="randomize()">إعادة التوزيع</button><button class="btn primary" onclick="ready()">جاهز</button></div>
+   <div class="muted">يمكنك التوزيع العشوائي السريع أو اختيار سفينة ووضعها يدويًا بالضغط على مربع البداية.</div>
+   <div id="shipPicker" class="ship-picker"></div>
+   <div class="place-tools"><button id="oriH" class="btn primary" onclick="setOrientation('H')">↔ أفقي</button><button id="oriV" class="btn ghost" onclick="setOrientation('V')">↕ عمودي</button><button class="btn ghost wide" onclick="randomize()">🎲 توزيع عشوائي</button></div>
+   <div id="setupBoard" class="board" style="margin-top:8px"></div>
+   <div class="setup-hint">اختر السفينة ثم اضغط مكان البداية. عند وضع سفينة فوق أخرى سيظهر تنبيه ولن يتم اعتمادها.</div>
+   <button class="btn primary full" style="margin-top:12px" onclick="ready()">جاهز وابدأ 🔥</button>
   </div>
  </section>
 
- <section id="wait" class="screen"><div class="card" style="text-align:center"><div style="font-size:54px">⏳</div><div class="title">تم تجهيزك</div><div class="muted">بانتظار الطرف الثاني…</div></div></section>
+ <section id="wait" class="screen"><div class="card" style="text-align:center"><div class="waitpulse" style="font-size:54px">⏳</div><div class="title">تم تجهيزك</div><div class="muted">بانتظار الطرف الثاني…</div></div></section>
 
  <section id="battle" class="screen">
   <div id="turn" class="turn"><b id="turnText">...</b><div id="shotsText" class="muted"></div></div>
@@ -67,7 +117,7 @@ button,input,select{font:inherit}.app{max-width:720px;margin:auto;padding:15px 1
 
  <section id="end" class="screen"><div class="card" style="text-align:center"><div style="font-size:62px">🏁</div><div id="endTitle" class="title"></div><div id="endText" class="muted"></div><button class="btn primary full" style="margin-top:14px" onclick="rematch()">إعادة مباراة بنفس الغرفة</button><button class="btn ghost full" style="margin-top:9px" onclick="leaveRoom()">إنهاء الغرفة</button></div></section>
 </div>
-<div id="overlay" class="overlay"><div id="modal" class="modal"></div></div><div id="toast" class="toast"></div>
+<div id="overlay" class="overlay"><div id="modal" class="modal"></div></div><div id="toast" class="toast"></div><div id="fxBanner" class="fxbanner"></div><div id="fxLayer"></div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -77,11 +127,21 @@ import {getDatabase,ref,set,get,update,onValue,push,remove} from "https://www.gs
 const cfg={apiKey:"AIzaSyBd36jTJ1Z-SrhyXk_jXOcVBjPvVFGfpek",authDomain:"couple-battleship.firebaseapp.com",databaseURL:"https://couple-battleship-default-rtdb.firebaseio.com",projectId:"couple-battleship",storageBucket:"couple-battleship.firebasestorage.app",messagingSenderId:"1030235226722",appId:"1:1030235226722:web:111d78d035944a17a3873b"};
 const app=initializeApp(cfg),auth=getAuth(app),db=getDatabase(app);
 const N=6,L=[4,3,2,2],WIN=3;
-let uid=null,room=null,rd=null,myRole='husband',oppUid=null,ships=newShips(),busy=false,seenIn=new Set(),seenOut=new Set(),roomUnsub=null,restoring=false;
+let uid=null,room=null,rd=null,myRole='husband',oppUid=null,ships=newShips(),busy=false,seenIn=new Set(),seenOut=new Set(),roomUnsub=null,restoring=false,selectedShip=0,orientation='H',audioCtx=null,soundOn=localStorage.getItem('cb_sound')!=='0',hapticOn=localStorage.getItem('cb_haptic')!=='0';
 
 function newShips(){return L.map((n,i)=>({id:'s'+i,len:n,piece:'',dep:null,cells:[],hits:[],sunk:false,removed:false}))}
 function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById(id).classList.add('on')} window.show=show;
 function toast(t){let e=document.getElementById('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1600)}
+function refreshFxButtons(){soundBtn.classList.toggle('off',!soundOn);hapticBtn.classList.toggle('off',!hapticOn);soundBtn.textContent=soundOn?'🔊':'🔇';hapticBtn.textContent=hapticOn?'📳':'📴'}
+window.toggleSound=()=>{soundOn=!soundOn;localStorage.setItem('cb_sound',soundOn?'1':'0');refreshFxButtons();if(soundOn)tone(520,.05,.04)}
+window.toggleHaptic=()=>{hapticOn=!hapticOn;localStorage.setItem('cb_haptic',hapticOn?'1':'0');refreshFxButtons();if(hapticOn&&navigator.vibrate)navigator.vibrate(30)}
+function primeEffects(){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}catch{}}
+document.addEventListener('pointerdown',primeEffects,{once:true});setTimeout(refreshFxButtons,0);
+function tone(freq=440,dur=.08,vol=.05,type='sine'){if(!soundOn)return;try{primeEffects();let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur)}catch{}}
+function haptic(pattern){if(hapticOn&&navigator.vibrate)try{navigator.vibrate(pattern)}catch{}}
+function banner(t){fxBanner.textContent=t;fxBanner.classList.add('show');setTimeout(()=>fxBanner.classList.remove('show'),900)}
+function burst(kind='hit',count=18){const cx=innerWidth/2,cy=innerHeight*.33;for(let i=0;i<count;i++){let p=document.createElement('i');p.className='fx-particle';p.style.left=(cx+Math.random()*50-25)+'px';p.style.top=(cy+Math.random()*30-15)+'px';p.style.background=kind==='miss'?'#bceaff':kind==='sunk'?'#ff6078':'#ffb0c3';let a=Math.random()*Math.PI*2,d=70+Math.random()*130;p.style.setProperty('--dx',Math.cos(a)*d+'px');p.style.setProperty('--dy',Math.sin(a)*d+'px');fxLayer.appendChild(p);setTimeout(()=>p.remove(),900)}}
+function resultFx(result){if(result==='miss'){tone(220,.09,.035,'sine');haptic(20);burst('miss',8)}else if(result==='hit'){tone(620,.08,.055,'square');setTimeout(()=>tone(760,.08,.045,'square'),70);haptic([35,25,55]);banner('💥 إصابة');burst('hit',16)}else if(result==='sunk'){tone(300,.09,.07,'sawtooth');setTimeout(()=>tone(520,.12,.07,'sawtooth'),90);setTimeout(()=>tone(760,.16,.06,'triangle'),190);haptic([60,35,80,35,120]);banner('🔥 إغــراق');burst('sunk',30)}}
 function roleAr(r){return r==='husband'?'الزوج':'الزوجة'} function otherRole(r){return r==='husband'?'wife':'husband'}
 window.pickRole=r=>{myRole=r;rh.className='btn '+(r==='husband'?'primary':'ghost');rw.className='btn '+(r==='wife'?'primary':'ghost')};
 onValue(ref(db,'.info/connected'),s=>{net.textContent=s.val()===true?'متصل ✓':'غير متصل';});
@@ -111,7 +171,7 @@ function enterLobby(){
   else if(rd.status==='finished'){show('end');let win=rd.winnerUid===uid;endTitle.textContent=win?'فزت بالجولة 🔥':'انتهت الجولة';endText.textContent=win?'أغرقت ثلاث سفن للخصم.':'تم إغراق ثلاث من سفنك.'}
  })
 }
-window.shareRoom=async()=>{if(!room)return;const url=location.origin+location.pathname+'?v=3',text='Couple Battleship\nكود الغرفة: '+room+'\n'+url;try{if(navigator.share)await navigator.share({title:'Couple Battleship',text,url});else{await navigator.clipboard.writeText(text);toast('تم نسخ الرابط والكود')}}catch(e){if(e?.name!=='AbortError')toast('الكود: '+room)}}
+window.shareRoom=async()=>{if(!room)return;const url=location.origin+location.pathname+'?v=4',text='Couple Battleship\nكود الغرفة: '+room+'\n'+url;try{if(navigator.share)await navigator.share({title:'Couple Battleship',text,url});else{await navigator.clipboard.writeText(text);toast('تم نسخ الرابط والكود')}}catch(e){if(e?.name!=='AbortError')toast('الكود: '+room)}}
 window.leaveRoom=async()=>{if(!room)return show('home');if(!confirm('إنهاء الغرفة والمباراة الحالية؟'))return;const oldRoom=room;try{await remove(ref(db,'rooms/'+oldRoom))}catch(e){console.warn(e)}localStorage.removeItem('cbs_'+oldRoom+'_'+uid);localStorage.removeItem('cbs_round_'+oldRoom+'_'+uid);clearActive();room=null;rd=null;if(roomUnsub){roomUnsub();roomUnsub=null}show('home');toast('تم إنهاء الغرفة')}
 window.openSetup=()=>{loadLocal();restoreSetupFields();show('setup');renderSetup()}
 
@@ -120,10 +180,15 @@ function depUI(){deps.innerHTML='';for(let i=0;i<4;i++){let d=document.createEle
 function refreshDeps(){for(let i=0;i<4;i++){let s=document.getElementById('d'+i),old=s?.value||'';if(!s)continue;s.innerHTML='<option value="">لا تعتمد على قطعة</option>';for(let j=0;j<4;j++)if(j!==i){let n=document.getElementById('p'+j).value.trim()||'السفينة '+(j+1);s.innerHTML+=`<option value="s${j}">${n}</option>`}s.value=old}}
 setTimeout(()=>{for(let i=0;i<4;i++){document.getElementById('p'+i).addEventListener('input',()=>{refreshDeps();saveDraft()})}for(let i=0;i<4;i++)document.getElementById('d'+i).addEventListener('change',saveDraft)},0);depUI();
 
-function board(el,fn){el.innerHTML='';for(let r=0;r<N;r++)for(let c=0;c<N;c++){let b=document.createElement('button');b.className='cell';b.dataset.k=`${r},${c}`;if(fn)b.onclick=()=>fn(r,c);el.appendChild(b)}}
-function randomPlace(){ships.forEach(s=>s.cells=[]);let occ=new Set();for(let s of ships){for(let t=0;t<500;t++){let v=Math.random()<.5,r=Math.floor(Math.random()*N),c=Math.floor(Math.random()*N),a=[];for(let k=0;k<s.len;k++){let rr=r+(v?k:0),cc=c+(v?0:k);if(rr>=N||cc>=N){a=[];break}a.push(`${rr},${cc}`)}if(a.length&&!a.some(x=>occ.has(x))){s.cells=a;a.forEach(x=>occ.add(x));break}}}}
-window.randomize=()=>{randomPlace();saveDraft();renderSetup()};randomPlace();
-function renderSetup(){board(setupBoard,null);let occ=new Set();ships.forEach(s=>s.cells.forEach(x=>occ.add(x)));setupBoard.querySelectorAll('.cell').forEach(b=>{if(occ.has(b.dataset.k))b.classList.add('ship')})}renderSetup();
+function board(el,fn){el.innerHTML='';for(let r=0;r<N;r++)for(let c=0;c<N;c++){let b=document.createElement('button');b.className='cell';b.dataset.k=String(r)+','+String(c);if(fn)b.onclick=()=>fn(r,c);el.appendChild(b)}}
+function randomPlace(){ships.forEach(s=>s.cells=[]);let occ=new Set();for(let s of ships){for(let t=0;t<500;t++){let v=Math.random()<.5,r=Math.floor(Math.random()*N),c=Math.floor(Math.random()*N),a=[];for(let k=0;k<s.len;k++){let rr=r+(v?k:0),cc=c+(v?0:k);if(rr>=N||cc>=N){a=[];break}a.push(String(rr)+','+String(cc))}if(a.length&&!a.some(x=>occ.has(x))){s.cells=a;a.forEach(x=>occ.add(x));break}}}}
+window.randomize=()=>{randomPlace();selectedShip=0;saveDraft();renderSetup();tone(430,.05,.03)}
+window.setOrientation=o=>{orientation=o;oriH.className='btn '+(o==='H'?'primary':'ghost');oriV.className='btn '+(o==='V'?'primary':'ghost');renderSetup()}
+function manualPlace(r,c){let s=ships[selectedShip],cells=[];for(let k=0;k<s.len;k++){let rr=r+(orientation==='V'?k:0),cc=c+(orientation==='H'?k:0);if(rr>=N||cc>=N){toast('السفينة تتجاوز حدود اللوحة');haptic(40);return}cells.push(String(rr)+','+String(cc))}
+ let other=new Set();ships.forEach((q,i)=>{if(i!==selectedShip)q.cells.forEach(x=>other.add(x))});if(cells.some(x=>other.has(x))){toast('لا يمكن تداخل السفن');haptic([30,20,30]);return}s.cells=cells;let next=ships.findIndex((q,i)=>i>selectedShip&&!q.cells.length);if(next<0)next=ships.findIndex(q=>!q.cells.length);if(next>=0)selectedShip=next;saveDraft();tone(500,.05,.035);haptic(25);renderSetup()}
+function renderSetup(){board(setupBoard,(r,c)=>manualPlace(r,c));let occ=new Set();ships.forEach(s=>s.cells.forEach(x=>occ.add(x)));setupBoard.querySelectorAll('.cell').forEach(b=>{if(occ.has(b.dataset.k))b.classList.add('ship')});
+ shipPicker.innerHTML='';ships.forEach((s,i)=>{let b=document.createElement('button');b.className='shippick '+(selectedShip===i?'sel ':'')+(s.cells.length?'placed':'');b.textContent='🚢 '+s.len+' • '+(s.piece||('قطعة '+(i+1)));b.onclick=()=>{selectedShip=i;renderSetup()};shipPicker.appendChild(b)})}
+randomPlace();renderSetup();
 
 function cycle(){let m={};ships.forEach(s=>m[s.id]=s.dep);for(let s of ships){let seen=new Set(),x=s.id;while(m[x]){if(seen.has(m[x]))return true;seen.add(m[x]);x=m[x]}}return false}
 function saveLocal(){if(room&&uid)localStorage.setItem('cbs_'+room+'_'+uid,JSON.stringify({ships,myRole}))}
@@ -145,10 +210,10 @@ async function fire(r,c){if(rd.turnUid!==uid||rd.pause||busy)return;let cell=Str
 function shipAt(c){return ships.find(s=>s.cells.includes(c))}
 async function processShots(o){for(let [id,s] of Object.entries(o)){if(s.targetUid===uid&&s.status==='pending'&&!seenIn.has(id)){seenIn.add(id);await resolve(id,s)}}for(let [id,s] of Object.entries(o)){if(s.shooterUid===uid&&s.status==='resolved'&&!s.advanced&&!seenOut.has(id)){seenOut.add(id);busy=false;await advance(id,s)}}renderBattle()}
 async function resolve(id,s){loadLocal();let sh=shipAt(s.cell),res='miss',state=null;if(sh){if(!sh.hits.includes(s.cell))sh.hits.push(s.cell);res='hit';if(sh.hits.length>=sh.len){sh.sunk=true;res='sunk';state=depRemoved(sh)?'removeNow':'locked'}saveLocal()}
- let p={};p[`rooms/${room}/shots/${id}/status`]='resolved';p[`rooms/${room}/shots/${id}/result`]=res;if(sh&&res==='sunk'){p[`rooms/${room}/shots/${id}/piece`]=sh.piece;p[`rooms/${room}/shots/${id}/shipId`]=sh.id;p[`rooms/${room}/shots/${id}/clothingState`]=state;if(state==='removeNow')p[`rooms/${room}/pause`]={targetUid:uid,shipId:sh.id,piece:sh.piece}}await update(ref(db),p);if(res==='sunk'&&state==='removeNow')removeModal(sh);if(res==='sunk'&&state==='locked')toast('غرقت سفينة لكنها معلقة خلف طبقة خارجية 🔒')}
-async function advance(id,s){let snap=await get(ref(db,'rooms/'+room)),x=snap.val(),left=(x.shotsLeft??2)-1,bonus=!!x.bonusUsed;if(s.result==='sunk'&&!bonus){left++;bonus=true;toast('إغراق + طلقة مكافأة 🔥')}else toast(s.result==='miss'?'ماء 🌊':s.result==='hit'?'إصابة 💥':'تم الإغراق');
+ let p={};p[`rooms/${room}/shots/${id}/status`]='resolved';p[`rooms/${room}/shots/${id}/result`]=res;if(sh&&res==='sunk'){p[`rooms/${room}/shots/${id}/piece`]=sh.piece;p[`rooms/${room}/shots/${id}/shipId`]=sh.id;p[`rooms/${room}/shots/${id}/clothingState`]=state;if(state==='removeNow')p[`rooms/${room}/pause`]={targetUid:uid,shipId:sh.id,piece:sh.piece}}await update(ref(db),p);resultFx(res);if(res==='sunk'&&state==='removeNow')removeModal(sh);if(res==='sunk'&&state==='locked')toast('غرقت سفينة لكنها معلقة خلف طبقة خارجية 🔒')}
+async function advance(id,s){let snap=await get(ref(db,'rooms/'+room)),x=snap.val(),left=(x.shotsLeft??2)-1,bonus=!!x.bonusUsed;resultFx(s.result);if(s.result==='sunk'&&!bonus){left++;bonus=true;toast('إغراق + طلقة مكافأة 🔥')}else toast(s.result==='miss'?'ماء 🌊':s.result==='hit'?'إصابة 💥':'تم الإغراق');
  let p={};p[`rooms/${room}/shots/${id}/advanced`]=true;let sunk=Object.values(x.shots||{}).filter(q=>q.shooterUid===uid&&q.status==='resolved'&&q.result==='sunk').length;if(sunk>=WIN){p[`rooms/${room}/status`]='finished';p[`rooms/${room}/winnerUid`]=uid}else if(left<=0){p[`rooms/${room}/turnUid`]=s.targetUid;p[`rooms/${room}/shotsLeft`]=2;p[`rooms/${room}/bonusUsed`]=false}else{p[`rooms/${room}/shotsLeft`]=left;p[`rooms/${room}/bonusUsed`]=bonus}await update(ref(db),p)}
-function removeModal(s){modal.innerHTML=`<div class="big">🔥</div><h2>غرقت سفينة ${esc(s.piece)}</h2><p>هذه القطعة أصبحت قابلة للخلع الآن.</p><button class="btn primary full" onclick="removed('${s.id}')">تم خلع القطعة — أكمل</button>`;overlay.classList.add('on')}
+function removeModal(s){banner('🔥 سفينة غرقت');burst('sunk',36);modal.innerHTML=`<div class="big">🔥</div><h2>غرقت سفينة ${esc(s.piece)}</h2><p>هذه القطعة أصبحت قابلة للخلع الآن.</p><button class="btn primary full" onclick="removed('${s.id}')">تم خلع القطعة — أكمل</button>`;overlay.classList.add('on')}
 window.removed=async id=>{loadLocal();let s=ships.find(x=>x.id===id);s.removed=true;saveLocal();let n=ships.find(x=>x.sunk&&!x.removed&&depRemoved(x));if(n){await update(ref(db,'rooms/'+room+'/pause'),{targetUid:uid,shipId:n.id,piece:n.piece});modal.innerHTML=`<div class="big">🔥🔥</div><h2>COMBO</h2><p>بعد خلع ${esc(s.piece)} أصبحت ${esc(n.piece)} قابلة للخلع.</p><button class="btn primary full" onclick="removed('${n.id}')">تم خلع ${esc(n.piece)} — أكمل</button>`;return}overlay.classList.remove('on');await remove(ref(db,'rooms/'+room+'/pause'))}
 function esc(s=''){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 setInterval(()=>{if(rd?.pause?.targetUid===uid&&!overlay.classList.contains('on')){loadLocal();let s=ships.find(x=>x.id===rd.pause.shipId);if(s&&!s.removed)removeModal(s)}},800);
