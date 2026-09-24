@@ -19,7 +19,7 @@ button,input,select{font:inherit}.app{max-width:720px;margin:auto;padding:15px 1
 </head>
 <body>
 <div class="app">
- <div class="top"><div class="brand">⚓ Couple Battleship</div><div id="net" class="net">اتصال…</div></div>
+ <div class="top"><div class="brand">⚓ Couple Battleship <small style="font-size:11px;color:#ceb9c3">V3</small></div><div id="net" class="net">اتصال…</div></div>
 
  <section id="home" class="screen on">
   <div class="card"><div class="title">لعبة السفن — على جوالين</div><div class="muted">كل لاعب يرى سفنه وضرباته من جواله. أماكن السفن وأسماء الملابس تبقى محليًا على جهاز صاحبها.</div></div>
@@ -111,7 +111,7 @@ function enterLobby(){
   else if(rd.status==='finished'){show('end');let win=rd.winnerUid===uid;endTitle.textContent=win?'فزت بالجولة 🔥':'انتهت الجولة';endText.textContent=win?'أغرقت ثلاث سفن للخصم.':'تم إغراق ثلاث من سفنك.'}
  })
 }
-window.shareRoom=async()=>{if(!room)return;const text='كود لعبة Couple Battleship: '+room;try{if(navigator.share)await navigator.share({title:'Couple Battleship',text});else{await navigator.clipboard.writeText(room);toast('تم نسخ الكود')}}catch(e){if(e?.name!=='AbortError')toast('الكود: '+room)}}
+window.shareRoom=async()=>{if(!room)return;const url=location.origin+location.pathname+'?v=3',text='Couple Battleship\nكود الغرفة: '+room+'\n'+url;try{if(navigator.share)await navigator.share({title:'Couple Battleship',text,url});else{await navigator.clipboard.writeText(text);toast('تم نسخ الرابط والكود')}}catch(e){if(e?.name!=='AbortError')toast('الكود: '+room)}}
 window.leaveRoom=async()=>{if(!room)return show('home');if(!confirm('إنهاء الغرفة والمباراة الحالية؟'))return;const oldRoom=room;try{await remove(ref(db,'rooms/'+oldRoom))}catch(e){console.warn(e)}localStorage.removeItem('cbs_'+oldRoom+'_'+uid);localStorage.removeItem('cbs_round_'+oldRoom+'_'+uid);clearActive();room=null;rd=null;if(roomUnsub){roomUnsub();roomUnsub=null}show('home');toast('تم إنهاء الغرفة')}
 window.openSetup=()=>{loadLocal();restoreSetupFields();show('setup');renderSetup()}
 
@@ -137,7 +137,7 @@ window.rematch=async()=>{if(!room||!rd)return;const next=(rd.round||1)+1;await u
 function arr(){return Object.entries(rd?.shots||{}).map(([id,v])=>({id,...v}))}
 function mine(){return arr().filter(x=>x.shooterUid===uid&&x.status==='resolved')}function incoming(){return arr().filter(x=>x.targetUid===uid&&x.status==='resolved')}
 function depRemoved(s){if(!s.dep)return true;let d=ships.find(x=>x.id===s.dep);return !!d?.removed}
-function renderBattle(){if(!rd||rd.status!=='playing')return;loadLocal();let myturn=rd.turnUid===uid,paused=!!rd.pause;turn.classList.toggle('mine',myturn&&!paused);turnText.textContent=paused?'متوقف لحظة تنفيذ الإغراق':myturn?'دورك الآن':'دور الطرف الآخر';shotsText.textContent='الطلقات المتبقية: '+(rd.shotsLeft??2)+(rd.bonusUsed?' • استُخدمت المكافأة':'');
+function renderBattle(){if(!rd||rd.status!=='playing')return;loadLocal();let pending=arr().some(x=>x.shooterUid===uid&&x.status==='pending');if(pending)busy=true;let myturn=rd.turnUid===uid,paused=!!rd.pause;turn.classList.toggle('mine',myturn&&!paused);turnText.textContent=paused?'متوقف لحظة تنفيذ الإغراق':myturn?'دورك الآن':'دور الطرف الآخر';shotsText.textContent='الطلقات المتبقية: '+(rd.shotsLeft??2)+(rd.bonusUsed?' • استُخدمت المكافأة':'');
  board(targetBoard,(r,c)=>fire(r,c));let ms=new Map(mine().map(x=>[x.cell,x]));targetBoard.querySelectorAll('.cell').forEach(b=>{let s=ms.get(b.dataset.k);if(s)b.classList.add(s.result==='miss'?'miss':s.result==='sunk'?'sunk':'hit');if(!myturn||paused||busy||s)b.classList.add('off')});
  board(ownBoard,null);let sc=new Set();ships.forEach(s=>s.cells.forEach(x=>sc.add(x)));let inc=new Map(incoming().map(x=>[x.cell,x]));ownBoard.querySelectorAll('.cell').forEach(b=>{if(sc.has(b.dataset.k))b.classList.add('ship');let s=inc.get(b.dataset.k);if(s)b.classList.add(s.result==='miss'?'miss':s.result==='sunk'?'sunk':'hit')});
  shipStatus.innerHTML='';ships.forEach(s=>{let d=document.createElement('div');d.className='statusline';let st=s.removed?'✅ تم خلعها':s.sunk?(s.dep&&!depRemoved(s)?'🔒 غرقت — معلقة':'☠️ غرقت'):`🚢 ${s.hits.length}/${s.len}`;d.innerHTML=`<span>${esc(s.piece)}</span><span>${st}</span>`;shipStatus.appendChild(d)})}
