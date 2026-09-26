@@ -1,0 +1,12 @@
+{
+  "name":"شفرة بيننا",
+  "short_name":"شفرة بيننا",
+  "lang":"ar",
+  "dir":"rtl",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#0d0710",
+  "theme_color":"#5a1635",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
