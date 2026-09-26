@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5a1635">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>شفرة بيننا</title>
+<style>
+:root{--bg:#0d0710;--p:#211020;--p2:#35152c;--line:#5d2a4a;--ink:#fff8fc;--mut:#d2bdc9;--rose:#e4487d;--rose2:#ff8db3;--gold:#e9bf72;--ok:#72d9aa}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:
+radial-gradient(circle at 50% -12%,#5b153b 0,#160a16 38%,#09060b 78%);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif}
+button,input,textarea,select{font:inherit}.app{max-width:760px;margin:auto;padding:14px 12px 88px}
+.top{position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;background:linear-gradient(#0d0710f2,#0d07109b,transparent);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#e44a80,#6f1745);box-shadow:0 12px 28px #0008;font-size:24px}.brand b{font-size:21px}.brand small{display:block;color:var(--mut);margin-top:2px}
+.net{font-size:12px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;color:var(--mut);background:#160c15}
+.screen{display:none}.screen.on{display:block;animation:in .28s ease both}
+.card{background:linear-gradient(180deg,#35182d,#1b0e1a);border:1px solid var(--line);border-radius:23px;padding:16px;margin:10px 0;box-shadow:0 18px 48px #0006,inset 0 1px 0 #ffffff0a;backdrop-filter:blur(10px)}
+.kicker{font-size:12px;color:var(--rose2);font-weight:900}.title{font-size:23px;font-weight:1000;margin:4px 0 7px}.muted{color:var(--mut);line-height:1.7}.note{font-size:12px;color:#c8b1be;line-height:1.65}
+.btn{border:0;border-radius:15px;padding:13px 12px;background:#2b1625;color:white;font-weight:900;cursor:pointer;transition:.15s}.btn:active{transform:scale(.97)}.primary{background:linear-gradient(135deg,#ee4a80,#b51d59);box-shadow:0 10px 26px #b51d593a}.ghost{border:1px solid var(--line);background:#1c1019}.gold{background:linear-gradient(135deg,#f2d08a,#a76524);color:#241208}.full{width:100%}.small{padding:9px 10px;border-radius:12px;font-size:13px}.btn:disabled{opacity:.4;cursor:not-allowed}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.input,.textarea,.select{width:100%;background:#110810;color:white;border:1px solid var(--line);border-radius:14px;padding:12px}.textarea{min-height:82px;resize:vertical}.sep{height:1px;background:var(--line);margin:14px 0}
+.code{text-align:center;font-size:38px;letter-spacing:5px;font-weight:1000;background:linear-gradient(90deg,#fff,#ff9abd,#fff);-webkit-background-clip:text;background-clip:text;color:transparent;margin:12px 0}
+.levels{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0}.level{border:1px solid var(--line);background:#21111e;border-radius:16px;padding:10px 5px;text-align:center}.level .ico{font-size:25px}.level b{display:block;font-size:11px;margin-top:4px}.level.active{outline:2px solid var(--rose2);background:#3a1730}.level.done{border-color:#8b6b30;background:#2c2016}
+.progress{height:13px;border-radius:999px;background:#100910;overflow:hidden;border:1px solid #4f293f}.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#e74a80,#f0c36e);transition:.35s}
+.turnbox{text-align:center;border:1px solid #6c3458;background:#32162a;border-radius:18px;padding:13px;margin:10px 0}.turnbox.mine{background:#193126;border-color:#35684f}.turnbox b{font-size:19px}
+.doors{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0}.door{aspect-ratio:.74;border:1px solid #7c3a60;border-radius:22px;background:
+linear-gradient(180deg,#5b1c45,#241020);position:relative;overflow:hidden;color:white;box-shadow:0 18px 36px #0006;cursor:pointer;transition:.2s}.door:before{content:"";position:absolute;inset:10px;border:1px solid #ffffff14;border-radius:16px}.door:after{content:"✦";position:absolute;left:13px;top:11px;color:#f0c77966}.door:hover{transform:translateY(-3px)}.door:active{transform:scale(.97)}.door .lock{font-size:40px}.door .num{display:block;margin-top:9px;font-size:13px;color:#eacbd8}.door.revealed{background:linear-gradient(180deg,#7d275d,#321229);animation:reveal .45s ease both}
+.event{display:none;text-align:center}.event.on{display:block}.event .big{font-size:58px}.event h2{font-size:27px;margin:7px 0}.event p{font-size:18px;line-height:1.8;color:#f2e4eb}.private{padding:12px;border-radius:15px;background:#120a10;border:1px dashed #7f4566;text-align:right;white-space:pre-wrap}
+.library-tabs{display:flex;gap:7px;overflow:auto;padding:3px 0 9px;scrollbar-width:none}.library-tabs::-webkit-scrollbar{display:none}.tab{white-space:nowrap;border:1px solid var(--line);background:#21101d;color:white;border-radius:999px;padding:9px 12px;font-weight:900}.tab.sel{outline:2px solid #ff8db333;background:#42172f}
+.cardrow{display:grid;grid-template-columns:1fr auto;gap:8px;margin:8px 0;align-items:start}.remove{width:42px;height:42px;border-radius:12px;border:1px solid #6b324e;background:#2a111e;color:#ffc4d6}
+.overlay{position:fixed;inset:0;background:#070408e9;display:none;place-items:center;padding:20px;z-index:30}.overlay.on{display:grid}.modal{width:min(100%,500px);background:linear-gradient(#3b1730,#180c17);border:1px solid #733456;border-radius:25px;padding:22px;text-align:center}.modal .big{font-size:58px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:white;color:#231019;padding:10px 14px;border-radius:12px;font-weight:900;opacity:0;transition:.2s;z-index:50}.toast.on{opacity:1}
+.privacy{font-size:12px;color:#bfa7b4;text-align:center;margin-top:15px}.history{display:flex;gap:6px;flex-wrap:wrap}.chip{padding:7px 9px;border-radius:999px;background:#23111f;border:1px solid var(--line);font-size:12px}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes reveal{0%{transform:rotateY(85deg);opacity:.2}100%{transform:none;opacity:1}}
+@media(max-width:620px){.levels{grid-template-columns:repeat(5,minmax(58px,1fr));overflow:auto}.doors{gap:7px}.door .lock{font-size:34px}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="top">
+  <div class="brand"><div class="logo">🔐</div><div><b>شفرة بيننا</b><small>لعبة خاصة للزوجين</small></div></div>
+  <div id="net" class="net">اتصال…</div>
+ </div>
+
+ <section id="home" class="screen on">
+  <div class="card"><div class="kicker">خصوصية أولًا</div><div class="title">مفاجآت لا يعرفها إلا جهازك</div><div class="muted">أنت تكتب محتوى بطاقاتك بنفسك. النصوص الخاصة لا تُرفع إلى Firebase؛ الذي يتزامن فقط هو الدور، المرحلة، المفاتيح ونوع الحدث.</div></div>
+  <div class="card"><div class="title">مكتبتي الخاصة</div><div class="muted">جهّز بطاقاتك قبل اللعب، ويمكن تعديلها في أي وقت.</div><button class="btn gold full" onclick="openLibrary()">تحرير مكتبتي 🔐</button></div>
+  <div class="card">
+   <div class="title">إنشاء غرفة</div>
+   <div class="grid2"><button id="rh" class="btn primary" onclick="pickRole('husband')">أنا الزوج</button><button id="rw" class="btn ghost" onclick="pickRole('wife')">أنا الزوجة</button></div>
+   <button class="btn primary full" style="margin-top:10px" onclick="createRoom()">إنشاء غرفة</button>
+  </div>
+  <div class="card"><div class="title">الانضمام</div><input id="join" class="input" maxlength="8" placeholder="كود الغرفة"><button class="btn primary full" style="margin-top:10px" onclick="joinRoom()">انضمام</button></div>
+ </section>
+
+ <section id="library" class="screen">
+  <div class="card">
+   <div class="kicker">محلي على هذا الجهاز</div><div class="title">مكتبتي الخاصة</div>
+   <div class="muted">اكتب ما تريد لكل مستوى. لا يرى الطرف الآخر النص ولا يتم رفعه لقاعدة البيانات.</div>
+   <div id="libTabs" class="library-tabs"></div>
+   <div id="libCards"></div>
+   <button class="btn ghost full" onclick="addPrivateCard()">+ إضافة بطاقة</button>
+   <button class="btn primary full" style="margin-top:9px" onclick="saveLibrary()">حفظ والعودة</button>
+  </div>
+ </section>
+
+ <section id="lobby" class="screen">
+  <div class="card"><div class="kicker">كود الغرفة</div><div id="roomCode" class="code">--------</div><div id="opp" class="muted" style="text-align:center">بانتظار الطرف الثاني…</div></div>
+  <div class="grid2"><button class="btn ghost" onclick="shareRoom()">مشاركة الكود</button><button class="btn ghost" onclick="leaveRoom()">إنهاء الغرفة</button></div>
+  <button id="readyBtn" class="btn primary full" style="margin-top:10px" disabled onclick="markReady()">أنا جاهز</button>
+ </section>
+
+ <section id="wait" class="screen"><div class="card" style="text-align:center"><div style="font-size:54px">⏳</div><div class="title">جاهز</div><div class="muted">بانتظار الطرف الثاني. ستبدأ الجولة تلقائيًا.</div></div></section>
+
+ <section id="game" class="screen">
+  <div class="levels" id="levels"></div>
+  <div class="card">
+   <div class="row" style="justify-content:space-between"><b id="stageTitle">المستوى</b><span id="keyText">0 / 3 🔑</span></div>
+   <div class="progress" style="margin-top:9px"><i id="keyBar"></i></div>
+  </div>
+  <div id="turnBox" class="turnbox"><b id="turnText">...</b><div class="muted" id="turnSub"></div></div>
+
+  <div id="doorsWrap">
+   <div class="muted" style="text-align:center">اختر بابًا. لا أحد يعرف ما خلفه.</div>
+   <div class="doors">
+    <button class="door" onclick="openDoor(0)"><span class="lock">🔒</span><span class="num">الباب 1</span></button>
+    <button class="door" onclick="openDoor(1)"><span class="lock">🔒</span><span class="num">الباب 2</span></button>
+    <button class="door" onclick="openDoor(2)"><span class="lock">🔒</span><span class="num">الباب 3</span></button>
+   </div>
+  </div>
+
+  <div id="eventBox" class="card event">
+   <div id="eventBig" class="big">🔐</div><h2 id="eventTitle"></h2><p id="eventDesc"></p>
+   <div id="privateText" class="private"></div>
+   <div class="grid2" style="margin-top:12px"><button class="btn primary" onclick="completeEvent()">تم ✅</button><button class="btn ghost" onclick="swapEvent()">بدّل 🔄</button></div>
+   <button class="btn ghost full" style="margin-top:8px" onclick="passEvent()">تجاوز ⏭️</button>
+  </div>
+
+  <div class="card"><div class="title" style="font-size:17px">آخر الأحداث</div><div id="history" class="history"></div></div>
+  <button class="btn ghost full" onclick="leaveRoom()">إنهاء الغرفة</button>
+ </section>
+
+ <section id="finish" class="screen">
+  <div class="card" style="text-align:center"><div style="font-size:66px">👑</div><div class="title">الخزنة الأخيرة</div><div class="muted">وصلتما إلى النهاية. افتح البطاقة الأخيرة على جهاز صاحب الدور.</div><button id="finalBtn" class="btn gold full" style="margin-top:13px" onclick="openFinal()">فتح الخزنة 👑</button><button class="btn ghost full" style="margin-top:8px" onclick="restartRoom()">جولة جديدة بنفس الغرفة</button></div>
+ </section>
+</div>
+<div id="overlay" class="overlay"><div id="modal" class="modal"></div></div>
+<div id="toast" class="toast"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInAnonymously,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getDatabase,ref,set,get,update,onValue,remove} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const cfg={apiKey:"AIzaSyBd36jTJ1Z-SrhyXk_jXOcVBjPvVFGfpek",authDomain:"couple-battleship.firebaseapp.com",databaseURL:"https://couple-battleship-default-rtdb.firebaseio.com",projectId:"couple-battleship",storageBucket:"couple-battleship.firebasestorage.app",messagingSenderId:"1030235226722",appId:"1:1030235226722:web:111d78d035944a17a3873b"};
+const app=initializeApp(cfg),auth=getAuth(app),db=getDatabase(app);
+const LEVELS=[
+ {icon:'❤️',name:'قريب'},
+ {icon:'🌙',name:'رومانسي'},
+ {icon:'🔥',name:'جرأة'},
+ {icon:'🎲',name:'مفاجأة'},
+ {icon:'👑',name:'الخزنة'}
+],KEYS_TO_UNLOCK=3;
+let uid=null,room=null,rd=null,myRole='husband',oppUid=null,roomUnsub=null,libLevel=0,currentLocalText='',currentReward=1,currentEventType='private',restoring=false;
+
+function emptyLibrary(){return LEVELS.map((x,i)=>i===4?['']:['','','','','',''])}
+let library=loadLibrary();
+function loadLibrary(){try{let x=JSON.parse(localStorage.getItem('cipher_library')||'null');if(Array.isArray(x)&&x.length===5)return x}catch{}return emptyLibrary()}
+function persistLibrary(){localStorage.setItem('cipher_library',JSON.stringify(library))}
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById(id).classList.add('on')} window.show=show;
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1700)}
+function otherRole(r){return r==='husband'?'wife':'husband'}
+window.pickRole=r=>{myRole=r;rh.className='btn '+(r==='husband'?'primary':'ghost');rw.className='btn '+(r==='wife'?'primary':'ghost')};
+
+onValue(ref(db,'.info/connected'),s=>net.textContent=s.val()===true?'متصل ✓':'غير متصل');
+onAuthStateChanged(auth,async u=>{if(u){uid=u.uid;await resumeRoom()}});
+signInAnonymously(auth).catch(()=>net.textContent='خطأ اتصال');
+async function ensure(){if(uid)return uid;let x=await signInAnonymously(auth);uid=x.user.uid;return uid}
+function remember(){if(room)localStorage.setItem('cipher_active_room',JSON.stringify({room,myRole}))}
+function forget(){localStorage.removeItem('cipher_active_room')}
+async function resumeRoom(){if(restoring||room)return;let a=localStorage.getItem('cipher_active_room');if(!a)return;restoring=true;try{let j=JSON.parse(a),s=await get(ref(db,'rooms/'+j.room));if(!s.exists()){forget();return}let x=s.val();if(x.game!=='cipher'||(x.hostUid!==uid&&x.guestUid!==uid)){forget();return}room=j.room;rd=x;myRole=x.hostUid===uid?x.hostRole:otherRole(x.hostRole);enterLobby()}catch(e){console.warn(e)}finally{restoring=false}}
+function code8(){let a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='C';for(let i=0;i<7;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
+
+window.createRoom=async()=>{try{await ensure();room=code8();await set(ref(db,'rooms/'+room),{game:'cipher',hostUid:uid,hostRole:myRole,status:'waiting',readyHost:false,readyGuest:false,turnUid:null,stage:0,keys:0,round:1,history:{}});remember();enterLobby()}catch(e){console.error(e);toast('تعذر إنشاء الغرفة')}};
+window.joinRoom=async()=>{try{await ensure();room=join.value.trim().toUpperCase();if(room.length!==8||room[0]!=='C')return toast('أدخل كود الغرفة الصحيح');await update(ref(db,'rooms/'+room),{guestUid:uid,status:'setup'});let s=await get(ref(db,'rooms/'+room));if(!s.exists()||s.val().game!=='cipher')throw new Error('wrong room');rd=s.val();myRole=otherRole(rd.hostRole);remember();enterLobby()}catch(e){console.error(e);toast('الغرفة غير موجودة أو ممتلئة')}};
+
+function enterLobby(){
+ if(roomUnsub)roomUnsub();show('lobby');roomCode.textContent=room;remember();
+ roomUnsub=onValue(ref(db,'rooms/'+room),async s=>{
+  if(!s.exists()){forget();room=null;rd=null;show('home');toast('تم إغلاق الغرفة');return}
+  rd=s.val();oppUid=rd.hostUid===uid?rd.guestUid:rd.hostUid;
+  if(rd.guestUid){opp.textContent='الطرف الثاني متصل ✓';readyBtn.disabled=false}else{opp.textContent='بانتظار الطرف الثاني…';readyBtn.disabled=true}
+  if(rd.readyHost&&rd.readyGuest&&rd.hostUid===uid&&rd.status!=='playing'&&rd.status!=='finished')await update(ref(db,'rooms/'+room),{status:'playing',turnUid:rd.hostUid,stage:0,keys:0,currentEvent:null});
+  if(rd.status==='waiting'||rd.status==='setup')show(rd.hostUid===uid&&rd.readyHost||rd.guestUid===uid&&rd.readyGuest?'wait':'lobby');
+  else if(rd.status==='playing'){show('game');renderGame()}
+  else if(rd.status==='finished'){show('finish');finalBtn.disabled=rd.turnUid!==uid}
+ })
+}
+window.markReady=async()=>{if(!libraryHasBasics())return toast('أضف بطاقة واحدة على الأقل لكل مستوى أولًا');const host=rd.hostUid===uid;await update(ref(db,'rooms/'+room),host?{readyHost:true,status:'setup'}:{readyGuest:true,status:'setup'});show('wait')};
+function libraryHasBasics(){return library.slice(0,4).every(a=>a.some(x=>x.trim()))&&library[4].some(x=>x.trim())}
+
+window.shareRoom=async()=>{if(!room)return;const url=location.origin+location.pathname,text='شفرة بيننا\nكود الغرفة: '+room+'\n'+url;try{if(navigator.share)await navigator.share({title:'شفرة بيننا',text,url});else{await navigator.clipboard.writeText(text);toast('تم نسخ الرابط والكود')}}catch{}}
+window.leaveRoom=async()=>{if(!room)return show('home');if(!confirm('إنهاء الغرفة الحالية؟'))return;let r=room;try{await remove(ref(db,'rooms/'+r))}catch{}forget();room=null;rd=null;if(roomUnsub){roomUnsub();roomUnsub=null}show('home')};
+
+function renderLevels(){
+ levels.innerHTML='';LEVELS.forEach((l,i)=>{let d=document.createElement('div');d.className='level '+(i===rd.stage?'active ':'')+(i<rd.stage?'done':'');d.innerHTML='<span class="ico">'+l.icon+'</span><b>'+l.name+'</b>';levels.appendChild(d)});
+ stageTitle.textContent=LEVELS[rd.stage]?.icon+' '+LEVELS[rd.stage]?.name;keyText.textContent=(rd.keys||0)+' / '+KEYS_TO_UNLOCK+' 🔑';keyBar.style.width=Math.min(100,((rd.keys||0)/KEYS_TO_UNLOCK)*100)+'%';
+}
+function renderGame(){
+ renderLevels();const mine=rd.turnUid===uid;turnBox.classList.toggle('mine',mine);turnText.textContent=mine?'دورك الآن':'دور شريكك';turnSub.textContent=rd.currentEvent?'بانتظار إنهاء البطاقة الحالية':'اختر أحد الأبواب الثلاثة';
+ const ev=rd.currentEvent;if(ev){doorsWrap.style.display='none';eventBox.classList.add('on');if(ev.byUid===uid){restoreLocalEvent(ev)}else{eventBig.textContent=eventIcon(ev.type);eventTitle.textContent='بطاقة خاصة عند شريكك';eventDesc.textContent='النص موجود على جهاز شريكك فقط.';privateText.textContent='🔐 محتوى خاص ومحلي';disableEventButtons(true)}}else{doorsWrap.style.display='block';eventBox.classList.remove('on');disableEventButtons(false)}
+ renderHistory();
+}
+function disableEventButtons(v){eventBox.querySelectorAll('button').forEach(b=>b.disabled=v)}
+function eventIcon(t){return t==='gold'?'✨':t==='wild'?'🎲':'🔐'}
+function chooseLocalCard(level,wild=false){let idx=wild?Math.floor(Math.random()*(Math.min(rd.stage,3)+1)):level;let pool=library[idx].map(x=>x.trim()).filter(Boolean);if(!pool.length)return {text:'',level:idx};return {text:pool[Math.floor(Math.random()*pool.length)],level:idx}}
+function doorType(){let r=Math.random();return r<.17?'gold':r<.32?'wild':'private'}
+
+window.openDoor=async i=>{if(rd.turnUid!==uid||rd.currentEvent)return;let t=doorType(),pick=chooseLocalCard(rd.stage,t==='wild');if(!pick.text)return toast('لا توجد بطاقة في هذا المستوى داخل مكتبتك');currentLocalText=pick.text;currentReward=t==='gold'?2:1;currentEventType=t;savePendingLocal({text:pick.text,reward:currentReward,type:t,level:pick.level});
+ await update(ref(db,'rooms/'+room),{currentEvent:{byUid:uid,type:t,level:pick.level,door:i,reward:currentReward,ts:Date.now()}});
+};
+function savePendingLocal(x){localStorage.setItem('cipher_pending_'+room+'_'+uid,JSON.stringify(x))}
+function clearPendingLocal(){localStorage.removeItem('cipher_pending_'+room+'_'+uid)}
+function restoreLocalEvent(ev){let x=null;try{x=JSON.parse(localStorage.getItem('cipher_pending_'+room+'_'+uid)||'null')}catch{};if(!x){let p=chooseLocalCard(ev.level,ev.type==='wild');x={text:p.text||'افتح مكتبتك لإضافة بطاقة',reward:ev.reward||1,type:ev.type,level:ev.level};savePendingLocal(x)}
+ currentLocalText=x.text;currentReward=x.reward;currentEventType=x.type;eventBig.textContent=eventIcon(ev.type);eventTitle.textContent=ev.type==='gold'?'بطاقة ذهبية — مفتاحان ✨':ev.type==='wild'?'مفاجأة من مستوى مفتوح 🎲':'بطاقة خاصة 🔐';eventDesc.textContent='هذه البطاقة لا تظهر إلا على جهازك.';privateText.textContent=x.text;disableEventButtons(false)}
+function addHistory(text){let h=Object.assign({},rd.history||{});let k='e'+Date.now();h[k]=text;let keys=Object.keys(h);if(keys.length>8)delete h[keys[0]];return h}
+function renderHistory(){history.innerHTML='';Object.values(rd.history||{}).slice(-8).forEach(x=>{let s=document.createElement('span');s.className='chip';s.textContent=x;history.appendChild(s)});if(!history.children.length)history.innerHTML='<span class="muted">لا توجد أحداث بعد</span>'}
+
+window.completeEvent=async()=>{if(!rd.currentEvent||rd.currentEvent.byUid!==uid)return;let keys=(rd.keys||0)+currentReward,stage=rd.stage,nextTurn=oppUid,h=addHistory((myRole==='husband'?'الزوج':'الزوجة')+' أكمل '+eventIcon(currentEventType));
+ let patch={keys,currentEvent:null,turnUid:nextTurn,history:h};clearPendingLocal();
+ if(keys>=KEYS_TO_UNLOCK){if(stage>=3){patch.status='finished';patch.stage=4;patch.keys=0;patch.turnUid=uid}else{patch.stage=stage+1;patch.keys=0}}
+ await update(ref(db,'rooms/'+room),patch)
+};
+window.swapEvent=async()=>{if(!rd.currentEvent||rd.currentEvent.byUid!==uid)return;let p=chooseLocalCard(rd.currentEvent.level,rd.currentEvent.type==='wild');if(!p.text)return toast('لا توجد بطاقة بديلة');currentLocalText=p.text;savePendingLocal({text:p.text,reward:currentReward,type:currentEventType,level:p.level});privateText.textContent=p.text;toast('تم تبديل البطاقة')};
+window.passEvent=async()=>{if(!rd.currentEvent||rd.currentEvent.byUid!==uid)return;let h=addHistory((myRole==='husband'?'الزوج':'الزوجة')+' تجاوز بطاقة ⏭️');clearPendingLocal();await update(ref(db,'rooms/'+room),{currentEvent:null,turnUid:oppUid,history:h})};
+
+window.openFinal=()=>{if(rd.turnUid!==uid)return;let pool=library[4].map(x=>x.trim()).filter(Boolean);let txt=pool[Math.floor(Math.random()*pool.length)]||'أضف بطاقة للخزنة الأخيرة في مكتبتك';modal.innerHTML='<div class="big">👑</div><h2>الخزنة الأخيرة</h2><div class="private">'+esc(txt)+'</div><button class="btn gold full" style="margin-top:14px" onclick="overlay.classList.remove(\'on\')">تم</button>';overlay.classList.add('on')};
+window.restartRoom=async()=>{if(!room||!rd)return;await update(ref(db,'rooms/'+room),{status:'setup',readyHost:false,readyGuest:false,turnUid:null,stage:0,keys:0,currentEvent:null,history:{},round:(rd.round||1)+1});show('lobby')};
+
+window.openLibrary=()=>{libLevel=0;renderLibrary();show('library')};
+function renderLibrary(){
+ libTabs.innerHTML='';LEVELS.forEach((l,i)=>{let b=document.createElement('button');b.className='tab '+(i===libLevel?'sel':'');b.textContent=l.icon+' '+l.name;b.onclick=()=>{syncLibraryInputs();libLevel=i;renderLibrary()};libTabs.appendChild(b)});
+ libCards.innerHTML='';library[libLevel].forEach((txt,i)=>{let d=document.createElement('div');d.className='cardrow';d.innerHTML='<textarea class="textarea" data-i="'+i+'" placeholder="اكتب محتوى بطاقتك الخاصة هنا...">'+esc(txt)+'</textarea><button class="remove" onclick="removePrivateCard('+i+')">×</button>';libCards.appendChild(d)});
+}
+function syncLibraryInputs(){document.querySelectorAll('#libCards textarea').forEach(t=>{library[libLevel][Number(t.dataset.i)]=t.value})}
+window.addPrivateCard=()=>{syncLibraryInputs();library[libLevel].push('');renderLibrary()};
+window.removePrivateCard=i=>{syncLibraryInputs();library[libLevel].splice(i,1);if(!library[libLevel].length)library[libLevel].push('');renderLibrary()};
+window.saveLibrary=()=>{syncLibraryInputs();persistLibrary();toast('تم حفظ المكتبة على هذا الجهاز');show('home')};
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
