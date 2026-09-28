@@ -77,7 +77,7 @@ button,input,select,textarea{font:inherit}.app{max-width:820px;margin:auto;paddi
    <div class="muted">اسم الخيار الخاص ووصفه يبقيان على هذا الجهاز. الزوج سيرى فقط «خيار خاص» وسعره حتى يتم التعامل معه بينكما.</div>
    <div id="customEditor"></div><button class="btn ghost full" onclick="addCustom()">+ إضافة خيار خاص</button>
   </div>
-  <button id="storeSaveBtn" class="btn primary full" onclick="createStore()">إنشاء المتجر والحصول على الكود</button>
+  <div class="card" style="padding:12px;position:sticky;bottom:10px;z-index:12"><div class="note" style="text-align:center;margin-bottom:7px">بعد الانتهاء من الصور والخيارات اضغطي هنا لنشرها للزوج.</div><button id="storeSaveBtn" class="btn primary full" onclick="createStore()">✅ تم — نشر المتجر للزوج</button></div>
  </section>
 
  <section id="wifeLobby" class="screen">
@@ -187,12 +187,12 @@ window.disconnectPair=async()=>{
 
 function code8(){let a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='M';for(let i=0;i<7;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
 
-window.wifeStart=()=>{role='wife';editingExisting=false;eventAt.disabled=false;budget.disabled=false;storeSaveBtn.textContent=paired&&room?'حفظ السهرة في الاتصال الحالي':'إنشاء المتجر والحصول على الكود';loadWifeDraft();renderWifeTabs();renderWifeCatalog();renderCustoms();show('wifeSetup')};
+window.wifeStart=()=>{role='wife';editingExisting=false;eventAt.disabled=false;budget.disabled=false;storeSaveBtn.textContent='✅ تم — نشر المتجر للزوج';loadWifeDraft();renderWifeTabs();renderWifeCatalog();renderCustoms();show('wifeSetup')};
 window.husbandStart=()=>{role='husband';if(paired&&room&&rd){if(rd.status==='open'){renderShop();show('shop')}else{renderPairHome();show('home');toast('بانتظار تجهيز الزوجة')}}else show('husbandJoin')};
 
 function normalizeSelected(){Object.entries(selected).forEach(([k,o])=>{o.options=Array.isArray(o.options)?o.options:[];if(typeof o.choiceMode!=='boolean')o.choiceMode=isChoiceDefault(o.name||'')})}
 function loadWifeDraft(){try{let x=JSON.parse(localStorage.getItem('between_store_draft')||'null');if(x){eventAt.value=x.eventAt||'';budget.value=x.budget||100;if(x.selected)Object.assign(selected,x.selected);customs=x.customs||[]}}catch{}normalizeSelected()}
-function saveWifeDraft(){localStorage.setItem('between_store_draft',JSON.stringify({eventAt:eventAt.value,budget:Number(budget.value)||100,selected,customs}))}
+function saveWifeDraft(){try{localStorage.setItem('between_store_draft',JSON.stringify({eventAt:eventAt.value,budget:Number(budget.value)||100,selected,customs}))}catch(e){console.warn('draft save failed',e)}}
 function renderWifeTabs(){wifeTabs.innerHTML='';CATS.forEach(c=>{let b=document.createElement('button');b.className='tab '+(c.id===setupCat?'sel':'');b.textContent=c.icon+' '+c.name;b.onclick=()=>{setupCat=c.id;renderWifeTabs();renderWifeCatalog()};wifeTabs.appendChild(b)})}
 function renderWifeCatalog(){wifeCatalog.innerHTML='';normalizeSelected();let c=CATS.find(x=>x.id===setupCat);c.items.forEach((name,i)=>{let k=c.id+'_'+i,o=selected[k],locked=lockedInfoFor(k),d=document.createElement('div');d.className='item '+(locked?'disabled':'');let choices=o.options||[];
  let body='<div class="ico">'+c.icon+'</div><h3>'+esc(name)+'</h3>'+(locked?'<div class="tag">🔒 تم شراؤه — غير قابل للتعديل</div>':'')+'<div class="switch"><input type="checkbox" '+(o.enabled?'checked':'')+' data-k="'+k+'" class="en" '+(locked?'disabled':'')+'><span>إضافة للمتجر</span></div>';
@@ -212,7 +212,7 @@ function renderWifeCatalog(){wifeCatalog.innerHTML='';normalizeSelected();let c=
 window.addChoice=k=>{normalizeSelected();selected[k].options.push({name:'',price:selected[k].price||defaults[selected[k].cat],image:'',oid:''});saveWifeDraft();renderWifeCatalog()};
 window.removeChoice=(k,i)=>{selected[k].options.splice(i,1);saveWifeDraft();renderWifeCatalog()};
 window.clearChoiceImage=(k,i)=>{selected[k].options[i].image='';saveWifeDraft();renderWifeCatalog()};
-async function compressImage(file){return new Promise((resolve,reject)=>{let fr=new FileReader();fr.onload=()=>{let im=new Image();im.onload=()=>{let max=480,scale=Math.min(1,max/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*scale)),h=Math.max(1,Math.round(im.height*scale)),cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);resolve(cv.toDataURL('image/jpeg',.72))};im.onerror=reject;im.src=fr.result};fr.onerror=reject;fr.readAsDataURL(file)})}
+async function compressImage(file){return new Promise((resolve,reject)=>{let fr=new FileReader();fr.onload=()=>{let im=new Image();im.onload=()=>{let max=360,scale=Math.min(1,max/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*scale)),h=Math.max(1,Math.round(im.height*scale)),cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);resolve(cv.toDataURL('image/jpeg',.65))};im.onerror=reject;im.src=fr.result};fr.onerror=reject;fr.readAsDataURL(file)})}
 function renderCustoms(){customEditor.innerHTML='';customs.forEach((x,i)=>{let d=document.createElement('div');d.className='card';d.style.padding='12px';d.innerHTML='<div class="editor"><input class="input cname" data-i="'+i+'" placeholder="اسم خاص على جهاز الزوجة" value="'+esc(x.name||'')+'"><input class="input cprice" data-i="'+i+'" type="number" min="0" step="5" value="'+(x.price||25)+'"><button class="btn danger small" onclick="removeCustom('+i+')">×</button></div><textarea class="textarea cdesc" data-i="'+i+'" placeholder="وصف أو ملاحظة خاصة — تبقى محليًا">'+esc(x.desc||'')+'</textarea>';customEditor.appendChild(d)});
  customEditor.querySelectorAll('.cname').forEach(e=>e.oninput=()=>{customs[+e.dataset.i].name=e.value;saveWifeDraft()});customEditor.querySelectorAll('.cprice').forEach(e=>e.oninput=()=>{customs[+e.dataset.i].price=Number(e.value)||0;saveWifeDraft()});customEditor.querySelectorAll('.cdesc').forEach(e=>e.oninput=()=>{customs[+e.dataset.i].desc=e.value;saveWifeDraft()})}
 window.addCustom=()=>{customs.push({name:'',desc:'',price:25});renderCustoms();saveWifeDraft()};window.removeCustom=i=>{customs.splice(i,1);renderCustoms();saveWifeDraft()};
@@ -244,7 +244,7 @@ function lockedInfoFor(key){
 window.editStore=()=>{
  if(!room||!rd||role!=='wife')return;
  if(saleClosed())return toast('بدأ موعد السهرة؛ لا يمكن تعديل المتجر الآن');
- editingExisting=true;hydrateEditorFromRoom();storeSaveBtn.textContent='حفظ التعديلات في المتجر';
+ editingExisting=true;hydrateEditorFromRoom();storeSaveBtn.textContent='✅ تم — نشر التعديلات للزوج';
  eventAt.disabled=true;budget.disabled=true;setupCat='look';renderWifeTabs();renderWifeCatalog();renderCustoms();show('wifeSetup')
 };
 function buildPublicItems(){let out={};normalizeSelected();Object.entries(selected).forEach(([k,o])=>{if(!o.enabled)return;if(o.choiceMode){let good=(o.options||[]).filter(x=>(x.name||'').trim()||x.image);good.forEach((x,i)=>{let id=x.oid||k+'__opt_'+i;out[id]={id,cat:o.cat,groupId:k,groupName:o.name,name:(x.name||('الخيار '+(i+1))).trim(),price:Number(x.price)||0,image:x.image||'',kind:'choice'}})}else out[k]={id:k,cat:o.cat,name:o.name,price:o.price,kind:'preset'}});customs.forEach((x,i)=>{if((x.name||x.desc).trim())out['custom_'+i]={id:'custom_'+i,cat:'private',name:'🔐 خيار خاص '+(i+1),price:Number(x.price)||25,kind:'custom'}});return out}
@@ -254,12 +254,12 @@ window.createStore=async()=>{try{
   let lockedIds=purchasedIds(),lockedGroups=purchasedGroups(),old=rd.items||{};
   Object.values(old).forEach(it=>{if(lockedIds.has(it.id)||(it.groupId&&lockedGroups.has(it.groupId)))items[it.id]=it});
   await update(ref(db,'rooms/'+room),{items,publishedAt:Date.now()});
-  editingExisting=false;eventAt.disabled=false;budget.disabled=false;storeSaveBtn.textContent='حفظ السهرة في الاتصال الحالي';show('wifeLobby');toast('تم حفظ التعديلات وظهرت للزوج ✓');return
+  editingExisting=false;eventAt.disabled=false;budget.disabled=false;storeSaveBtn.textContent='✅ تم — نشر المتجر للزوج';show('wifeLobby');toast('تم نشر التعديلات للزوج ✓');return
  }
  role='wife';let b=Math.max(10,Number(budget.value)||100);
  if(paired&&room&&rd&&rd.hostUid===uid){
    await update(ref(db,'rooms/'+room),{status:'open',eventAt:eventAt.value||'',budget:b,balance:b,items,purchases:null,publishedAt:Date.now()});
-   remember();listenRoom(false);renderPairHome();show('wifeLobby');toast('تم تجهيز السهرة على نفس الاتصال ✓');return
+   remember();listenRoom(false);renderPairHome();show('wifeLobby');toast('تم نشر المتجر للزوج ✓');return
  }
  room=code8();
  await set(ref(db,'rooms/'+room),{game:'between-store',hostUid:uid,hostRole:'wife',status:'open',eventAt:eventAt.value||'',budget:b,balance:b,items,purchases:{},publishedAt:Date.now()});
