@@ -94,9 +94,10 @@ button,input,select,textarea{font:inherit}.app{max-width:820px;margin:auto;paddi
 
  <section id="shop" class="screen">
   <div class="balance"><div><div class="note">رصيدك</div><strong id="balanceText">0 💎</strong></div><div style="text-align:left"><div class="note">موعد السهرة</div><b id="shopDate">—</b></div></div>
+  <div class="card" style="padding:10px"><div class="row" style="justify-content:space-between"><div><b>المتجر الحالي</b><div id="refreshStamp" class="note">آخر تحديث: —</div></div><button class="btn ghost small" onclick="refreshStore()">🔄 تحديث المتجر</button></div></div>
   <div id="nightNotice" class="card" style="display:none;text-align:center"><div style="font-size:46px">🌙</div><div class="title">بدأ موعد السهرة</div><div class="muted">أُغلق المتجر تلقائيًا. الآن تظهر مشترياتك التي اخترتها مسبقًا.</div></div>
   <div id="shopCard" class="card"><div id="shopTabs" class="tabs"></div><div id="shopCatalog" class="catalog"></div></div>
-  <div id="cartBar" class="cartbar"><div><b id="cartCount">0 عناصر</b><div class="note" id="cartTotal">المجموع 0 💎</div></div><button class="btn gold" onclick="checkout()">إتمام الشراء</button></div>
+  <div id="cartBar" class="cartbar"><div><b id="cartCount">0 عناصر</b><div class="note" id="cartTotal">المجموع 0 💎</div></div><button class="btn gold" onclick="checkout()">✅ تم الشراء</button></div>
   <div class="card"><div class="title" style="font-size:18px">مشترياتي</div><div id="myPurchases"></div></div>
  </section>
 
@@ -252,16 +253,16 @@ window.createStore=async()=>{try{
  if(editingExisting&&room&&rd){
   let lockedIds=purchasedIds(),lockedGroups=purchasedGroups(),old=rd.items||{};
   Object.values(old).forEach(it=>{if(lockedIds.has(it.id)||(it.groupId&&lockedGroups.has(it.groupId)))items[it.id]=it});
-  await update(ref(db,'rooms/'+room),{items});
+  await update(ref(db,'rooms/'+room),{items,publishedAt:Date.now()});
   editingExisting=false;eventAt.disabled=false;budget.disabled=false;storeSaveBtn.textContent='حفظ السهرة في الاتصال الحالي';show('wifeLobby');toast('تم حفظ التعديلات وظهرت للزوج ✓');return
  }
  role='wife';let b=Math.max(10,Number(budget.value)||100);
  if(paired&&room&&rd&&rd.hostUid===uid){
-   await update(ref(db,'rooms/'+room),{status:'open',eventAt:eventAt.value||'',budget:b,balance:b,items,purchases:null});
+   await update(ref(db,'rooms/'+room),{status:'open',eventAt:eventAt.value||'',budget:b,balance:b,items,purchases:null,publishedAt:Date.now()});
    remember();listenRoom(false);renderPairHome();show('wifeLobby');toast('تم تجهيز السهرة على نفس الاتصال ✓');return
  }
  room=code8();
- await set(ref(db,'rooms/'+room),{game:'between-store',hostUid:uid,hostRole:'wife',status:'open',eventAt:eventAt.value||'',budget:b,balance:b,items,purchases:{}});
+ await set(ref(db,'rooms/'+room),{game:'between-store',hostUid:uid,hostRole:'wife',status:'open',eventAt:eventAt.value||'',budget:b,balance:b,items,purchases:{},publishedAt:Date.now()});
  remember();listenRoom(true)
 }catch(e){console.error(e);toast(editingExisting?'تعذر حفظ التعديلات':'تعذر إنشاء المتجر')}};
 window.joinStore=async()=>{try{await ensure();let r=joinCode.value.trim().toUpperCase();if(r.length!==8||r[0]!=='M')return toast('أدخل كود المتجر الصحيح');await update(ref(db,'rooms/'+r),{guestUid:uid});let s=await get(ref(db,'rooms/'+r));if(!s.exists()||s.val().game!=='between-store')throw new Error('bad');room=r;role='husband';rd=s.val();remember();listenRoom()}catch(e){console.error(e);toast('المتجر غير موجود أو مغلق')}};
@@ -286,7 +287,8 @@ function renderShopTabs(){shopTabs.innerHTML='';let cats=['all',...new Set(Objec
 function purchasedIds(){return new Set(Object.values(rd?.purchases||{}).map(p=>p.itemId))}
 function purchasedGroups(){return new Set(Object.values(rd?.purchases||{}).map(p=>p.groupId).filter(Boolean))}
 function saleClosed(){return !!rd?.eventAt&&Date.now()>=new Date(rd.eventAt).getTime()}
-function renderShop(){if(!rd)return;let closed=saleClosed();balanceText.textContent=(rd.balance??rd.budget)+' 💎';shopDate.textContent=fmtDate(rd.eventAt);nightNotice.style.display=closed?'block':'none';shopCard.style.display=closed?'none':'block';cartBar.style.display=closed?'none':'flex';if(!closed){renderShopTabs();let bought=purchasedIds(),bGroups=purchasedGroups(),vis=visibleItems();shopCatalog.innerHTML='';
+window.refreshStore=async()=>{if(!room)return;try{let s=await get(ref(db,'rooms/'+room));if(!s.exists())return toast('المتجر غير موجود');rd=s.val();cart=cart.filter(id=>rd.items&&rd.items[id]);renderShop();toast('تم تحديث المتجر ✓')}catch(e){console.error(e);toast('تعذر تحديث المتجر')}}
+function renderShop(){if(!rd)return;let closed=saleClosed();balanceText.textContent=(rd.balance??rd.budget)+' 💎';shopDate.textContent=fmtDate(rd.eventAt);if(window.refreshStamp)refreshStamp.textContent='آخر تحديث: '+(rd.publishedAt?fmtDate(rd.publishedAt):'—');nightNotice.style.display=closed?'block':'none';shopCard.style.display=closed?'none':'block';cartBar.style.display=closed?'none':'flex';if(!closed){renderShopTabs();let bought=purchasedIds(),bGroups=purchasedGroups(),vis=visibleItems();shopCatalog.innerHTML='';
  let groups={};vis.filter(x=>x.kind==='choice').forEach(x=>{(groups[x.groupId]??=[]).push(x)});
  Object.values(groups).forEach(opts=>{let g=opts[0],disabled=bGroups.has(g.groupId),d=document.createElement('div');d.className='item '+(disabled?'disabled':'');let inner='<div class="group-title"><div class="ico">'+catInfo(g.cat).icon+'</div><h3>'+esc(g.groupName)+'</h3><div class="meta">'+(disabled?'تم اختيار أحد الخيارات':'اختر خيارًا واحدًا')+'</div></div><div class="option-grid">';
  opts.forEach(it=>{inner+='<div class="option-card">'+(it.image?'<img src="'+esc(it.image)+'" alt="">':'')+'<b>'+esc(it.name)+'</b><div class="price">'+it.price+' 💎</div><button class="btn '+(cart.includes(it.id)?'ghost':'primary')+' full small" style="margin-top:7px" '+(disabled?'disabled':'')+' onclick="toggleCart(\''+it.id+'\')">'+(cart.includes(it.id)?'إزالة':'اختيار')+'</button></div>'});inner+='</div>';d.innerHTML=inner;shopCatalog.appendChild(d)});
